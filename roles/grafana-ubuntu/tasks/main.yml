@@ -1,0 +1,63 @@
+---
+# tasks file for roles/ubuntu/grafana
+- name: Downloading the Package from Grafana
+  apt:
+    deb: https://dl.grafana.com/oss/release/grafana_7.3.6_amd64.deb
+  register: pkg_grafana
+
+- name: Depackaging Grafana
+  dpkg_selections:
+    name: grafana_7.3.6_amd64.deb
+    selection: install
+  when: pkg_grafana.changed
+
+- name: Installing libfontconfig
+  apt:
+    name: libfontconfig1
+    state: latest
+    update_cache: yes
+
+- name: Installing Grafana
+  apt:
+    name: grafana
+    state: latest
+    update_cache: yes
+
+- name: Enabling and Starting Grafana
+  service:
+    name: grafana-server
+    state: started
+    enabled: yes
+
+- name: Installing Prometheus
+  apt:
+    name: prometheus
+    state: latest
+    update_cache: yes
+
+- name: Starting Prometheus
+  service:
+    name: prometheus
+    state: started
+    enabled: yes
+
+- name: Adding influxdata_Key
+  apt_key:
+    url: https://repos.influxdata.com/influxdb.key
+    state: present
+
+- name: Adding influxdata repository
+  apt_repository:
+    repo: 'deb https://repos.influxdata.com/ubuntu focal stable'
+    state: present
+
+- name: Installing Telegraf
+  apt:
+    name: telegraf
+    state: latest
+    update_cache: yes
+
+- name: Starting telegraf
+  service:
+    name: telegraf
+    state: started

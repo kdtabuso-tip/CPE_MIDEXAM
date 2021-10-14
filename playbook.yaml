@@ -1,0 +1,37 @@
+---
+- name: Installation of ELK for Ubuntu
+  hosts: ubuntu
+  roles:
+    - elk-ubuntu
+
+- name: Installation of ELK for Centos
+  hosts: centos
+  roles:
+    - elk-centos
+
+- name: Installation of Nagios for Ubuntu
+  hosts: ubuntu
+  vars_files:
+    - ./config.yaml
+  roles:
+    - nagios-ubuntu
+
+- name: Installation of Grafana, Prometheus and Influxdb for Ubuntu
+  hosts: ubuntu
+  roles:
+    - grafana-ubuntu
+
+- name: Installation of Grafana, Prometheus, and Influxdb for Centos
+  hosts: centos
+  roles:
+    - grafana-centos
+
+- name: Installation of LAMP for Ubuntu
+  hosts: ubuntu
+  roles:
+    - lamp-ubuntu
+
+- name: Installation of LAMP for Centos 
+  hosts: centos
+  roles:
+    - lamp-centos

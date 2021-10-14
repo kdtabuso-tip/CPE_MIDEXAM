@@ -1,0 +1,111 @@
+---
+# tasks file for roles/centos/elk
+- name: Installing of pre-requisite of Elastic (java)
+  yum:
+    name: java-11-openjdk-devel
+    state: latest
+    update_cache: yes
+
+- name: Installing Elasticsearch repository
+  yum_repository:
+    name: Elastic_7.X_repo
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: yes
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    enabled: yes
+    description: Elastic 7.x repo
+
+- name: Installing Elasticsearch gpg key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Installing Elasticsearch
+  yum:
+    name: elasticsearch
+    state: present
+    update_cache: yes
+
+- name: Updating config file to allow access
+  lineinfile:
+    destfile: /etc/elasticsearch/elasticsearch.yml
+    regexp: '#network.host:'
+    line: 'network.host: localhost'
+
+- name: Updating port config
+  lineinfile:
+    destfile: /etc/elasticsearch/elasticsearch.yml
+    regexp: '#http.port:'
+    line: 'http.port: 9200'
+
+- name: Updating time
+  lineinfile:
+    dest: /usr/lib/systemd/system/elasticsearch.service
+    regexp: 'TimeoutStartSec='
+    line: 'TimeoutStartSec=900'
+
+- name: Enabling and Starting Elasticsearch
+  service:
+    name: elasticsearch
+    state: started
+    enabled: yes
+
+- name: Installing Logstash repository
+  yum_repository:
+    name: Elastic repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: yes
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    enabled: yes
+    description: Elastic 7.x packages repo
+
+- name: Installing Logstash
+  yum:
+    name: logstash
+    state: present
+    update_cache: yes
+
+- name: Updating config file
+  lineinfile:
+    dest: /etc/logstash/logstash.yml
+    regexp: 'http.host:'
+    line: 'http.host: 127.0.0.1'
+
+- name: Enabling and Starting  Logstash
+  service:
+    name: logstash
+    state: started
+    enabled: yes
+
+- name: Installing Kibana repository
+  yum_repository:
+    name: Kibana 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: yes
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    enabled: yes
+    description: Kibana-7.x
+
+- name: Installing Kibana
+  yum:
+    name: kibana
+    state: present
+    update_cache: yes
+
+- name: Updating config server.host
+  lineinfile:
+    destfile: /etc/kibana/kibana.yml
+    regexp: 'server.host'
+    line: 'server.host: 0.0.0.0'
+
+- name: Updating config file server.port
+  lineinfile:
+    dest: /etc/kibana/kibana.yml
+    regexp: 'server.port:'
+    line: 'server.port: 5601'
+
+- name: Enabling and starting Kibana
+  service:
+    name: kibana
+    state: started
+    enabled: yes
